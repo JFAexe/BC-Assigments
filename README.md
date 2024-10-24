@@ -2,3 +2,4 @@
 
 - [Basic Account](solidity/account.sol)
 - [Inheritance](solidity/classes.sol)
+- [Vote](solidity/vote.sol)
