@@ -4,7 +4,7 @@ pragma solidity >=0.8.26;
 // 1.0 Создаем контракт для кошелька.
 contract Account {
     address payable private owner;
-    uint    private         balance;
+    uint            private balance;
 
     struct Transaction {
         uint amount;

@@ -23,21 +23,21 @@ contract RationalMath {
     }
 
     function rsum( Rational memory a, Rational memory b ) internal pure returns ( Rational memory ) {
-        return rnormalize( rational( a.numerator * b.denominator + b.numerator * a.denominator, a.denominator * b.denominator ) );
+        return rational( a.numerator * b.denominator + b.numerator * a.denominator, a.denominator * b.denominator );
     }
 
     function rsub( Rational memory a, Rational memory b ) internal pure returns ( Rational memory ) {
-        return rnormalize( rational( a.numerator * b.denominator - b.numerator * a.denominator, a.denominator * b.denominator ) );
+        return rational( a.numerator * b.denominator - b.numerator * a.denominator, a.denominator * b.denominator );
     }
 
     function rmul( Rational memory a, Rational memory b ) internal pure returns ( Rational memory ) {
-        return rnormalize( rational( a.numerator * b.numerator, a.denominator * b.denominator ) );
+        return rational( a.numerator * b.numerator, a.denominator * b.denominator );
     }
 
     function rdiv( Rational memory a, Rational memory b ) internal pure returns ( Rational memory ) {
         require( b.numerator != 0, "You can't divide by 0." );
 
-        return rnormalize( rational( a.numerator * b.denominator, a.denominator * b.numerator ) );
+        return rational( a.numerator * b.denominator, a.denominator * b.numerator );
     }
 
     function rnormalize( Rational memory r ) internal pure returns ( Rational memory ) {
@@ -72,11 +72,11 @@ contract Rectangle is Figure {
     }
 
     function Perimeter( ) public override view returns ( Rational memory ) {
-        return rmul( TWO, rmul( width, height ) );
+        return rnormalize( rmul( TWO, rsum( width, height ) ) );
     }
 
     function Area( ) public override view returns ( Rational memory ) {
-        return rmul( width, height );
+        return rnormalize( rmul( width, height ) );
     }
 }
 
@@ -89,10 +89,10 @@ contract Circle is Figure {
     }
 
     function Perimeter( ) public override view returns ( Rational memory ) {
-        return rmul( radius, rmul( TWO, PI ) );
+        return rnormalize( rmul( radius, rmul( TWO, PI ) ) );
     }
 
     function Area( ) public override view returns ( Rational memory ) {
-        return rmul( PI, rmul( radius, radius ) );
+        return rnormalize( rmul( PI, rmul( radius, radius ) ) );
     }
 }
