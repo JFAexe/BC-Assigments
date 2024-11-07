@@ -10,31 +10,42 @@ contract Implementation is ERC20, Ownable {
 
     event FeeUpdated( uint256 fee );
 
-    constructor( string memory name, string memory symbol, uint256 initial, uint8 decimal, uint256 fee_ ) Ownable( _msgSender( ) ) ERC20( name, symbol ) {
+    constructor( string memory name, string memory symbol, uint8 decimal, uint256 fee_ ) Ownable( _msgSender( ) ) ERC20( name, symbol ) payable {
         _decimals = decimal;
         _fee      = fee_;
 
-        _mint( _msgSender( ), initial * cost( ) );
+        _mint( _msgSender( ), msg.value );
     }
 
-    function mint( address to, uint256 amount ) external onlyOwner {
-        _mint( to, amount );
+    function mint( address to ) external payable onlyOwner {
+        if ( isContract( to ) ) {
+            revert ERC20InvalidReceiver( to );
+        }
+
+        _mint( to, msg.value );
     }
 
     function burn( address from, uint256 amount ) external onlyOwner {
         _burn( from, amount );
     }
 
-    function decimals( ) public view override returns ( uint8 ) {
-        return _decimals;
-    }
+    function transfer( address to, uint256 value ) public override returns ( bool ) {
+        address sender  = _msgSender( );
+        uint256 balance = balanceOf( sender );
 
-    function cost( ) internal view returns ( uint256 ) {
-        return 10 ** decimals( );
-    }
+        if ( balanceOf( sender ) < value ) {
+            revert ERC20InsufficientBalance( sender, balance, value );
+        }
 
-    function fee( ) public view returns ( uint256 ) {
-        return _fee;
+        uint256 fee_ = transactionFee( );
+
+        _transfer( sender, to, value - fee_ );
+
+        if ( fee_ > 0 ) {
+            _burn( sender, fee_ );
+        }
+
+        return true;
     }
 
     function set_fee( uint256 new_fee ) external onlyOwner {
@@ -43,17 +54,23 @@ contract Implementation is ERC20, Ownable {
         emit FeeUpdated( new_fee );
     }
 
-    function transfer( address to, uint256 value ) public override returns ( bool ) {
-        address sender = _msgSender( );
+    function transactionFee( ) public view returns ( uint256 ) {
+        return _fee;
+    }
 
-        uint256 fee_ = fee( );
+    function decimals( ) public view override returns ( uint8 ) {
+        return _decimals;
+    }
 
-        _transfer( sender, to, value - fee_ );
+    function inWei( ) public view returns ( uint256 ) {
+        return 10 ** decimals( );
+    }
 
-        if ( fee_ > 0 ) {
-            _transfer( sender, owner( ), fee_ );
-        }
+    function stake( ) public view returns ( uint256 ) {
+        return address( this ).balance;
+    }
 
-        return true;
+    function isContract( address account ) internal view returns ( bool ) {
+        return account.code.length == 0;
     }
 }
