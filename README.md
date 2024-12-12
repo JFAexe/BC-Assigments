@@ -4,3 +4,5 @@
 - [Inheritance](solidity/classes.sol)
 - [Vote](solidity/vote.sol)
 - [ERC-20](solidity/erc20.sol)
+- [Bonds](solidity/bonds.sol)
+- [Crowdfund](solidity/crowdfund.sol)
